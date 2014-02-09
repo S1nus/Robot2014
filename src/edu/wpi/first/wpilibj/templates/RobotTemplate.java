@@ -30,7 +30,9 @@ public class RobotTemplate extends SimpleRobot {
         drive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
     }
     public void autonomous() {
-        //Autonomous code goes here, nothing yet.
+        drive.drive(1.0, 0.0);
+        Timer.delay(5);
+        drive.drive(0.0, 0.0);
     }
     public void operatorControl() {
         System.out.println("Entering Teleop");
@@ -45,9 +47,10 @@ public class RobotTemplate extends SimpleRobot {
                 feeler1.set(0.0);
                 feeler2.set(0.0);
             }
-            if (rightstick.getRawButton(2)) {
-                toggleFeelers();
-            }
+            feelerspeed = rightstick.getZ();
+//            if (rightstick.getRawButton(2)) {
+//                toggleFeelers();
+//            }
         }
     }
     public void toggleFeelers() {
