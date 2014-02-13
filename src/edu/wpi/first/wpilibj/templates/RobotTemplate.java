@@ -30,10 +30,10 @@ public class RobotTemplate extends SimpleRobot {
         drive.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, true);
         drive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
         //Pneumatics
-        ds1 = new DoubleSolenoid(2,1);
-        ds2 = new DoubleSolenoid(4,3);
-        ds1.set(DoubleSolenoid.Value.kReverse);
-        ds2.set(DoubleSolenoid.Value.kReverse);
+          ds1 = new DoubleSolenoid(2,1);
+          ds2 = new DoubleSolenoid(4,3);
+          ds1.set(DoubleSolenoid.Value.kReverse);
+          ds2.set(DoubleSolenoid.Value.kReverse);
         compressor = new Compressor(2,2);
     }
     
@@ -50,6 +50,7 @@ public class RobotTemplate extends SimpleRobot {
             //Setting the left and rights sticks to control the drive train like a tank
             drive.tankDrive(rightstick, leftstick);
             if (rightstick.getRawButton(1)) {
+                fire();
             }
             //Feelers
             if (leftstick.getRawButton(1)) {
@@ -60,20 +61,22 @@ public class RobotTemplate extends SimpleRobot {
                 feeler1.set(0.0);
                 feeler2.set(0.0);
             }
+            printDs();
         }
     }
     public void fire() {
         ds1.set(DoubleSolenoid.Value.kForward);
         ds2.set(DoubleSolenoid.Value.kForward);
-        Timer.delay(0.1);
+        Timer.delay(1);
         ds1.set(DoubleSolenoid.Value.kOff);
         ds2.set(DoubleSolenoid.Value.kOff);
         Timer.delay(1);
-        //ds1.set(DoubleSolenoid.Value.kReverse);
-        //ds2.set(DoubleSolenoid.Value.kReverse);
+        ds1.set(DoubleSolenoid.Value.kReverse);
+        ds2.set(DoubleSolenoid.Value.kReverse);
     }
     
     public void printDs() {
+        //Here we debug the pistons
         if (ds1.get() == DoubleSolenoid.Value.kForward) {
             display.println(DriverStationLCD.Line.kUser1, 1, "ds1: forward");
         }
@@ -84,14 +87,14 @@ public class RobotTemplate extends SimpleRobot {
             display.println(DriverStationLCD.Line.kUser1, 1, "ds1: off");
         }
         if (ds2.get() == DoubleSolenoid.Value.kForward) {
-            display.println(DriverStationLCD.Line.kUser1, 2, "ds2: forward");
+            display.println(DriverStationLCD.Line.kUser2, 1, "ds2: forward");
         }
         else if (ds2.get() == DoubleSolenoid.Value.kReverse) {
-            display.println(DriverStationLCD.Line.kUser1, 2, "ds2: reverse");
+            display.println(DriverStationLCD.Line.kUser2, 1, "ds2: reverse");
         }
         else if (ds2.get() == DoubleSolenoid.Value.kOff) {
-            display.println(DriverStationLCD.Line.kUser1, 2, "ds2: off");
+            display.println(DriverStationLCD.Line.kUser2, 1, "ds2: off");
         }        
         display.updateLCD();
-    }
+    } 
 }
