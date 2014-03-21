@@ -7,12 +7,12 @@ public class RobotTemplate extends SimpleRobot {
     final boolean FEELERS_EXTEND = true;
     final boolean FEELERS_RETRACT = false;
     final long ONE_SECOND_IN_US = 1000000;
-    //Variable declaration zone
     //Controls
     Joystick leftstick;
     Joystick rightstick;
     DriverStationLCD display = DriverStationLCD.getInstance();
     boolean flip = false;
+    
     //Motors and drive train
     RobotDrive drive;
     Jaguar feeler1;
@@ -63,8 +63,9 @@ public class RobotTemplate extends SimpleRobot {
         for (long currentTime = Timer.getUsClock(); (currentTime - startTime) <= (2*ONE_SECOND_IN_US); currentTime = Timer.getUsClock()) {
             drive.drive(1-((currentTime-startTime)/(ONE_SECOND_IN_US)*2), 0.0);
         }
-        drive.drive(0.0, 0.0);
         fire();
+        Timer.delay(1);
+        drive.drive(1.0, 0.0);
     }
 
     public void operatorControl() {
@@ -120,4 +121,19 @@ public class RobotTemplate extends SimpleRobot {
         psi = (int) (psi + .5);
     }
     
+    public void flip() {
+        long currentTime = Timer.getUsClock();
+        long flipUsTime = 0;
+        if ((currentTime - flipUsTime) >= 125000) {
+            flipUsTime = currentTime;
+            if (flip) {
+                flip = false;
+                drive.setSensitivity(0.5);
+            }
+            else {
+                flip = true;
+                drive.setSensitivity(-0.5);
+            }
+        }
+    }
 }
