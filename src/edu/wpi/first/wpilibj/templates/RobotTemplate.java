@@ -4,20 +4,22 @@ import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class RobotTemplate extends SimpleRobot {
+    final boolean FEELERS_EXTEND = true;
+    final boolean FEELERS_RETRACT = false;
+    final long ONE_SECOND_IN_US = 1000000;
     //Variable declaration zone
     //Controls
-
     Joystick leftstick;
     Joystick rightstick;
     DriverStationLCD display = DriverStationLCD.getInstance();
+    boolean flip = false;
     //Motors and drive train
     RobotDrive drive;
     Jaguar feeler1;
     Jaguar feeler2;
+    
     //Pneumatics
-    DoubleSolenoid ds1;
-    DoubleSolenoid ds2;
-    Solenoid feelerSolenoid;
+    Solenoid s1, s2, s3, s4, feelerSolenoid;
     Compressor compressor;
     AnalogChannel pressureTransducer;
     double analog;
@@ -34,44 +36,58 @@ public class RobotTemplate extends SimpleRobot {
         feeler2 = new Jaguar(6);
         drive = new RobotDrive(1, 2, 3, 4);
         //Pneumatics
-        ds1 = new DoubleSolenoid(1, 2);
-        ds2 = new DoubleSolenoid(3, 4);
-        ds1.set(DoubleSolenoid.Value.kReverse);
-        ds2.set(DoubleSolenoid.Value.kReverse);
+        s1 = new Solenoid(1);
+        s2 = new Solenoid(2);
+        s3 = new Solenoid(3);
+        s4 = new Solenoid(4);
+        s1.set(false);
+        s2.set(false);
+        s3.set(false);
+        s4.set(false);
         feelerSolenoid = new Solenoid(5);
         compressor = new Compressor(2, 2);
-        pressureTransducer = new AnalogChannel(2);
+        pressureTransducer = new AnalogChannel(3);
     }
 
     public void autonomous() {
-        drive.drive(0.5, 0.0);
-        Timer.delay(3);
+        compressor.start();
+        feelerSolenoid.set(FEELERS_EXTEND);
+        Timer.delay(1.0);
+        long startTime = Timer.getUsClock();
+        for (long currentTime = Timer.getUsClock(); (currentTime - startTime) <= (2*ONE_SECOND_IN_US); currentTime = Timer.getUsClock()) {
+            drive.drive(((currentTime-startTime)/(ONE_SECOND_IN_US)*2), 0.0);
+        }
+        for (long currentTime = Timer.getUsClock(); (currentTime - startTime) <= (2*ONE_SECOND_IN_US); currentTime = Timer.getUsClock()) {
+            drive.drive(0.5, 0.0);
+        }
+        for (long currentTime = Timer.getUsClock(); (currentTime - startTime) <= (2*ONE_SECOND_IN_US); currentTime = Timer.getUsClock()) {
+            drive.drive(1-((currentTime-startTime)/(ONE_SECOND_IN_US)*2), 0.0);
+        }
         drive.drive(0.0, 0.0);
         fire();
     }
 
     public void operatorControl() {
         compressor.start();
-        System.out.println("Entering Teleop");
         while (isOperatorControl() && isEnabled()) {
             //Setting the left and rights sticks to control the drive train like a tank
             drive.tankDrive(rightstick, leftstick);
-            drive.setSensitivity((rightstick.getZ() + 1.0) * .5);
-            if (rightstick.getRawButton(1)) {
-                fire();
-            }
             //Feelers
             if (leftstick.getRawButton(1)) {
                 feeler1.set(leftstick.getZ());
                 feeler2.set(leftstick.getZ());
-            } else {
+            }
+            else {
                 feeler1.set(0.0);
                 feeler2.set(0.0);
             }
-            if (rightstick.getRawButton(2)) {
-                feelerSolenoid.set(false);
+            if (rightstick.getRawButton(1)){
+                fire();    
             }
             if (rightstick.getRawButton(3)) {
+                feelerSolenoid.set(false);
+            }
+            if (rightstick.getRawButton(2)) {
                 feelerSolenoid.set(true);
             }
             getPressure();
@@ -80,14 +96,15 @@ public class RobotTemplate extends SimpleRobot {
     }
 
     public void fire() {
-        ds1.set(DoubleSolenoid.Value.kForward);
-        ds2.set(DoubleSolenoid.Value.kForward);
-        Timer.delay(1);
-        ds1.set(DoubleSolenoid.Value.kOff);
-        ds2.set(DoubleSolenoid.Value.kOff);
-        Timer.delay(1);
-        ds1.set(DoubleSolenoid.Value.kReverse);
-        ds2.set(DoubleSolenoid.Value.kReverse);
+        s1.set(true);
+        s2.set(true);
+        s3.set(true);
+        s4.set(true);
+        Timer.delay(.5);
+        s1.set(false);
+        s2.set(false);
+        s3.set(false);
+        s4.set(false);
     }
 
     public void printDs() {
@@ -102,4 +119,5 @@ public class RobotTemplate extends SimpleRobot {
         psi = (analog / 0.5) * 14.5;//Much better function
         psi = (int) (psi + .5);
     }
+    
 }
