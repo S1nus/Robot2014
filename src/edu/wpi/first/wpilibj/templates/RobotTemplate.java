@@ -99,6 +99,7 @@ public class RobotTemplate extends SimpleRobot {
             }
             getPressure();
             printDs();
+            Timer.delay(0.005);
         }
     }
 
@@ -111,9 +112,11 @@ public class RobotTemplate extends SimpleRobot {
     }
     
     public void minifire() {
-        setCatapult(CATAPULT_UP);
-        Timer.delay(.01);
-        setCatapult(CATAPULT_DOWN);
+        s2.set(CATAPULT_UP);
+        s3.set(CATAPULT_UP);
+        Timer.delay(.5);
+        s2.set(CATAPULT_DOWN);
+        s3.set(CATAPULT_DOWN);
     }
 
     public void printDs() {
@@ -145,5 +148,17 @@ public class RobotTemplate extends SimpleRobot {
         Timer.delay(0.5);
         feelerSolenoid.set(FEELERS_RETRACT);
         Timer.delay(0.5);
+    }
+    public void test() {
+        feelerSolenoid.set(FEELERS_EXTEND);
+        Timer.delay(0.5);
+        setCatapult(CATAPULT_UP);
+        Timer.delay(0.5);
+        feelerSolenoid.set(FEELERS_RETRACT);
+        compressor.start();
+        while (isTest() && isEnabled()) {
+            printDs();
+            getPressure();
+        }
     }
 }
